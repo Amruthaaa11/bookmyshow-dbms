@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyShow - Movies</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark" style="background-color: #e74c3c;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/index">🎬 BookMyShow</a>
+            <div>
+                <span class="text-white me-3">Hello, {{ session.name }}!</span>
+                <a href="/my_bookings" class="btn btn-outline-light btn-sm me-2">My Bookings</a>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+
+        <h4 class="mb-4">Now Showing</h4>
+
+        <div class="row">
+
+            {% for movie in movies %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+
+                        <h5 class="card-title">{{ movie.title }}</h5>
+
+                        <p class="card-text">
+                            <span class="badge bg-danger">{{ movie.genre }}</span>
+                            &nbsp;
+                            <span class="badge bg-secondary">{{ movie.language }}</span>
+                        </p>
+
+                        <p class="card-text text-muted">
+                            Duration: {{ movie.duration_mins }} mins
+                        </p>
+
+                        <p class="card-text text-muted">
+                            Release: {{ movie.release_date }}
+                        </p>
+
+                        <a href="/movie/{{ movie.movie_id }}" class="btn btn-danger w-100">
+                            Book Tickets
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Sensitive config — contains MySQL password
+db.py
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment (if used)
+venv/
+env/
+.venv/
+
+# VS Code settings
+.vscode/
+
+# OS junk files
+.DS_Store
+Thumbs.db
+
+Screenshot*.png
