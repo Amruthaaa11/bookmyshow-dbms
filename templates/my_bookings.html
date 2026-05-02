@@ -24,6 +24,12 @@
     <div class="container mt-4">
         <h4 class="mb-4">My Bookings</h4>
 
+        <div class="mb-3">
+            <a href="/my_bookings" class="btn btn-dark btn-sm me-2">All</a>
+            <a href="/my_bookings?filter=confirmed" class="btn btn-success btn-sm me-2">Confirmed</a>
+            <a href="/my_bookings?filter=cancelled" class="btn btn-secondary btn-sm">Cancelled</a>
+        </div>
+
         {% if bookings %}
         <div class="table-responsive">
             <table class="table table-bordered table-hover">

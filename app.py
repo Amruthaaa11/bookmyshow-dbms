@@ -272,21 +272,34 @@ def logout():
 def my_bookings():
     if 'user_id' not in session:
         return redirect('/login')
-    
-    connection=get_connection()
-    cursor=get_cursor(connection)
 
-    cursor.execute(
-        "Select * From booking_summary WHERE user_id=%s",
-        (session['user_id'],)
-    )
+    connection = get_connection()
+    cursor = get_cursor(connection)
 
-    bookings=cursor.fetchall()
+    filter = request.args.get('filter', 'all')
+
+    if filter == 'confirmed':
+        cursor.execute(
+            "SELECT * FROM booking_summary WHERE user_id = %s AND booking_status = 'confirmed'",
+            (session['user_id'],)
+        )
+    elif filter == 'cancelled':
+        cursor.execute(
+            "SELECT * FROM booking_summary WHERE user_id = %s AND booking_status = 'cancelled'",
+            (session['user_id'],)
+        )
+    else:
+        cursor.execute(
+            "SELECT * FROM booking_summary WHERE user_id = %s",
+            (session['user_id'],)
+        )
+
+    bookings = cursor.fetchall()
 
     cursor.close()
     connection.close()
 
-    return render_template('my_bookings.html',bookings=bookings)
+    return render_template('my_bookings.html', bookings=bookings, filter=filter)
 
 #=============================================================
 #Route 11:Cancel Booking
