@@ -80,4 +80,4 @@ http://127.0.0.1:5000
 |------|-------|----------|
 | Rahul Sharma | rahul@gmail.com | hash_rahul |
 | Priya Menon | priya@gmail.com | hash_priya |
-| Arjun Reddy | arjun@gmail.com | hash_arjun |
+| Arjun Reddy | arjun@gamil.com | hash_arjun |
