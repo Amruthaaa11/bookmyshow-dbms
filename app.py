@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from db import get_connection, get_cursor
 
+
 # ============================================================
 #  app.py — Main Flask application
 #  Run with: python app.py
@@ -148,8 +149,15 @@ def booking(show_id):
     show = cursor.fetchone()
 
     cursor.execute(
-        "SELECT * FROM SEAT WHERE screen_id = %s",
-        (show['screen_id'],)
+        """SELECT s.*,
+           CASE 
+               WHEN s.category='silver' THEN sh.base_price
+               WHEN s.category='gold' THEN ROUND(sh.base_price*1.5,2)
+            END as seat_price
+            FROM SEAT s
+            JOIN shows sh ON sh.show_id=%s
+            WHERE s.screen_id=%s""",
+        (show_id,show['screen_id'])
     )
     seats = cursor.fetchall()
 
@@ -190,14 +198,23 @@ def confirm_booking():
     cursor = get_cursor(connection)
 
     try:
-        # get price of show
-        cursor.execute("SELECT price FROM SHOWS WHERE show_id = %s", (show_id,))
-        show = cursor.fetchone()
-        price = show['price']
-
-        # count seats
+        # get price per seat based on category
         seat_id_list = [int(s) for s in seat_ids.split(',')]
-        total = price * len(seat_id_list)
+        total = 0.0
+        for seat_id in seat_id_list:
+            cursor.execute(
+                """SELECT 
+                   CASE
+                       WHEN s.category='silver' THEN sh.base_price
+                       WHEN s.category='gold' THEN ROUND(sh.base_price*1.5,2)
+                    END as seat_price
+                    FROM SEAT s
+                    JOIN SHOWS sh ON sh.show_id=%s
+                    WHERE s.seat_id=%s""",
+                    (show_id, seat_id)
+            )
+            result = cursor.fetchone()
+            total += float(str(result['seat_price']))
 
         # create booking
         cursor.execute(
@@ -205,7 +222,6 @@ def confirm_booking():
             (user_id, show_id, total)
         )
         booking_id = cursor.lastrowid
-        # lastrowid gives the auto generated booking_id
 
         # insert each seat
         for seat_id in seat_id_list:
@@ -231,8 +247,6 @@ def confirm_booking():
         cursor.close()
         connection.close()
         return render_template('booking.html', error=str(e))
-
-
 # ============================================================
 #  Route 8: Confirmation page
 # ============================================================

@@ -31,8 +31,9 @@
         <div class="card shadow p-3 mb-4">
             <h5 class="mb-1">{{ show.title }}</h5>
             <p class="text-muted mb-0">
-                {{ show.show_time }} &nbsp;|&nbsp; Rs. {{ show.price }} per seat
-            </p>
+                {{ show.show_time }} &nbsp;|&nbsp;
+                Silver:Rs. {{show.price}} &nbsp;|&nbsp;
+                Gold:Rs. {{(show.price| float*1.5)|int }}
         </div>
 
         <!-- SCREEN INDICATOR -->
@@ -72,6 +73,7 @@
                     <button class="btn btn-secondary btn-sm m-1 seat"
                             data-seat-id="{{ seat.seat_id }}"
                             data-seat-label="{{ seat.row_label }}{{ seat.seat_number }}"
+                            data-seat-price="{{seat.seat_price}}"
                             onclick="toggleSeat(this)">
                         {{ seat.row_label }}{{ seat.seat_number }}
                     </button>
@@ -122,28 +124,31 @@
     <script>
         let selectedSeatIds = [];
         let selectedSeatLabels = [];
-        const pricePerSeat = parseFloat("{{ show.price }}");
-
+        let totalAmount=0;
+        
         function toggleSeat(button) {
             const seatId = button.getAttribute('data-seat-id');
             const seatLabel = button.getAttribute('data-seat-label');
+            const seatPrice=parseFloat(button.getAttribute('data-seat-price'));
 
             if (button.classList.contains('btn-danger')) {
                 button.classList.remove('btn-danger');
-                button.classList.add('btn-secondary');
+                button.classList.add('btn-dark');
                 selectedSeatIds = selectedSeatIds.filter(s => s !== seatId);
                 selectedSeatLabels = selectedSeatLabels.filter(s => s !== seatLabel);
+                totalAmount-=seatPrice;
             } else {
                 button.classList.remove('btn-dark');
                 button.classList.add('btn-danger');
                 selectedSeatIds.push(seatId);
                 selectedSeatLabels.push(seatLabel);
+                totalAmount+=seatPrice;
             }
 
             document.getElementById('selected-seats').textContent =
                 selectedSeatLabels.length > 0 ? selectedSeatLabels.join(', ') : 'None';
             document.getElementById('total-amount').textContent =
-                'Rs. ' + (selectedSeatIds.length * pricePerSeat);
+                'Rs. ' + totalAmount.toFixed(2);
             document.getElementById('seat-ids-input').value =
                 selectedSeatIds.join(',');
         }
