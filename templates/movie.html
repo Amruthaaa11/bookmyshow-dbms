@@ -48,9 +48,10 @@
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                     <tr>
+                        <th>Date</th>
                         <th>Theater</th>
                         <th>Screen</th>
-                        <th>Time & Date</th>
+                        <th>Time</th>
                         <th>Price</th>
                         <th>Action</th>
                     </tr>
@@ -58,14 +59,21 @@
                 <tbody>
                     {% for show in shows %}
                     <tr>
+                        <td>{{ show.show_date }}</td>
                         <td>{{ show.theater_name }}</td>
                         <td>{{ show.screen_name }}</td>
                         <td>{{ show.show_time }}</td>
                         <td>Rs. {{ show.price }}</td>
                         <td>
-                            <a href="/booking/{{ show.show_id }}" class="btn btn-danger btn-sm">
-                                Select Seats
-                            </a>
+                            {% if availability[show.show_id] == 'Housefull' %}
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    Housefull
+                                </button>
+                            {% else %}
+                                <a href="/booking/{{ show.show_id }}" class="btn btn-danger btn-sm">
+                                    Select Seats
+                                </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -73,17 +81,6 @@
             </table>
         </div>
 
-        <td>
-            {% if availability[show.show_id] == 'Housefull' %}
-            <button class="btn btn-secondary btn-sm" disabled>
-                Housefull
-            </button>
-            {% else %}
-            <a href="/booking/{{ show.show_id }}" class="btn btn-danger btn-sm">
-                Select Seats
-            </a>
-            {% endif %}
-        </td>
         {% else %}
         <div class="alert alert-warning">
             No shows available for this movie right now.
