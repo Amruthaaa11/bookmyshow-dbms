@@ -123,11 +123,28 @@ def movie(movie_id):
     )
     shows = cursor.fetchall()
 
+    # get availability for each show
+    cursor.execute(
+        """SELECT 
+            sh.show_id,
+            CASE 
+                WHEN COUNT(bs.seat_id) >= sc.total_seats THEN 'Housefull'
+                ELSE 'Available'
+            END as availability
+        FROM SHOWS sh
+        JOIN SCREEN sc ON sh.screen_id = sc.screen_id
+        LEFT JOIN BOOKING b ON sh.show_id = b.show_id AND b.status = 'confirmed'
+        LEFT JOIN BOOKING_SEAT bs ON b.booking_id = bs.booking_id AND bs.seat_status = 'Booked'
+        WHERE sh.movie_id = %s
+        GROUP BY sh.show_id, sc.total_seats""",
+        (movie_id,)
+    )
+    availability = {row['show_id']: row['availability'] for row in cursor.fetchall()}
+
     cursor.close()
     connection.close()
 
-    return render_template('movie.html', movie=movie, shows=shows)
-
+    return render_template('movie.html', movie=movie, shows=shows, availability=availability)
 
 # ============================================================
 #  Route 6: Booking — seat selection
@@ -348,7 +365,40 @@ def cancel_booking(booking_id):
 
     return redirect('/my_bookings')
 # ============================================================
+#  Route 12: User Profile
+# ============================================================
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    connection = get_connection()
+    cursor = get_cursor(connection)
+
+    success = None
+
+    if request.method == 'POST':
+        phone = request.form['phone']
+        cursor.execute(
+            "UPDATE USER SET phone = %s WHERE user_id = %s",
+            ('+91' + phone, session['user_id'])
+        )
+        connection.commit()
+        success = 'Phone number updated successfully!'
+
+    cursor.execute(
+        "SELECT * FROM USER WHERE user_id = %s",
+        (session['user_id'],)
+    )
+    user = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    return render_template('profile.html', user=user, success=success)
+# ============================================================
 #  Run the app
 # ============================================================
 if __name__ == '__main__':
     app.run(debug=True)
+
